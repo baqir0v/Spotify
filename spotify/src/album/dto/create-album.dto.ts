@@ -14,14 +14,14 @@ export class CreateAlbumDto{
     @Length(200)
     @ApiProperty()
     image: string
+
+    @Type()
+    @ApiProperty()
+    @IsNumber()
+    user:number
     
     @Type()
     @IsNumber()
     @ApiProperty()
     genre:number
-
-    @Type()
-    @IsNumber()
-    @ApiProperty()
-    user:number
 }

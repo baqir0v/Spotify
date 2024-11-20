@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ClsService } from "nestjs-cls";
 import { Album } from "src/Entities/Album.entity";
@@ -6,13 +6,19 @@ import { User } from "src/Entities/User.entity";
 import { FindOneParams, FindParams } from "src/shared/types/find.params";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
 import { FindOptionsWhere, Repository } from "typeorm";
+import { CreateAlbumDto } from "./dto/create-album.dto";
+import { Genre } from "src/Entities/Genre.entity";
+import { GenreService } from "src/genre/genre.service";
 
 @Injectable()
 export class AlbumService {
     constructor(
         private cls: ClsService,
         @InjectRepository(Album)
-        private albumRepo: Repository<Album>
+        private albumRepo: Repository<Album>,
+        @InjectRepository(Genre)
+        private genreRepo: Repository<Genre>,
+        private genreService: GenreService
     ) { }
 
     findAll(params: PaginationUserDto) {
@@ -27,7 +33,31 @@ export class AlbumService {
         return album
     }
 
-    async create(){
+    async create(params: CreateAlbumDto) {
         const me = this.cls.get<User>("user")
+
+        const genre = await this.genreService.findOne({ id: params.genre })
+
+        if (!genre) throw new NotFoundException("Genre not found")
+
+        const album = this.albumRepo.create({
+            ...params,
+            genre: [genre],
+            user: me
+        })
+
+        return this.albumRepo.save(album);
+    }
+
+    async remove(id: number) {
+        const album = await this.albumRepo.findOne({ where: { id } });
+
+        if (!album) {
+            throw new NotFoundException(`Album with ID ${id} not found`);
+        }
+
+        await this.albumRepo.remove(album);
+
+        return album
     }
 }

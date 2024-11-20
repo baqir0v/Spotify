@@ -1,0 +1,83 @@
+use music_app;
+
+create table user (
+	id int not null unique auto_increment primary key,
+    userName varchar(100) not null,
+    nickName varchar(50) not null unique,
+    email varchar(100) not null unique,
+    password varchar(50) not null,
+    image varchar(200) not null default "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg",
+    joinDate timestamp not null default current_timestamp,
+    isOnline boolean default false
+);
+
+alter table user
+add createdAt timestamp not null default current_timestamp,
+add updatedAt timestamp not null 
+;
+ 
+alter table genre
+drop column genre_id
+;	
+
+create table genre (
+	id int not null unique auto_increment primary key,
+    genre_name varchar(50) not null unique
+);
+
+create table albums (
+	id int not null unique auto_increment primary key,
+	title VARCHAR(100) NOT NULL,
+    image varchar(200) not null,
+	genre_id int,
+    artist_id int,
+    foreign key (genre_id) references genre(id),
+	foreign key (artist_id) references user(id)
+);
+
+create table music (
+ id int not null unique auto_increment primary key,
+ title varchar(100) not null,
+ image varchar(200) not null,
+ artist_id int,
+ album_id int,
+ genre_id int,
+ foreign key (genre_id) references genre(id),
+ foreign key (artist_id) references user(id),
+ foreign key (album_id) references albums(id)
+);
+
+alter table music
+drop foreign key music_ibfk_1;
+;
+
+ALTER TABLE music DROP COLUMN genre_id;
+
+alter table music
+modify column song varchar(500) not null
+;
+
+CREATE TABLE user_music (
+    user_id INT,
+    music_id INT,
+    PRIMARY KEY (user_id, music_id),
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (music_id) REFERENCES music(id)
+);
+
+select 
+albums.album_id,
+albums.title,
+albums.image,
+albums.genre_id,
+genre.genre_name as genre_name,
+albums.artist_id
+from albums
+inner join
+genre on albums.genre_id = genre.genre_id
+;
+
+
+
+
+

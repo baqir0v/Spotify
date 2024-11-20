@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { AlbumService } from "./album.service";
 import { ApiTags } from "@nestjs/swagger";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
+import { CreateAlbumDto } from "./dto/create-album.dto";
 
 @ApiTags("album")
 @Controller("album")
@@ -16,5 +17,15 @@ export class AlbumController{
     @Get(":id")
     findOne(@Param("id") id: number) {
         return this.albumService.findOne({ id })
+    }
+
+    @Post()
+    create(@Body() body:CreateAlbumDto){
+        return this.albumService.create(body)
+    }
+
+    @Delete(":id")
+    remove(@Param("id") id:number){
+        return this.albumService.remove(id)
     }
 }

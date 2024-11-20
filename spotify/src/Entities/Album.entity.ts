@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToMany, OneToMany } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { CommonEntity } from "./Common.entity";
 import { Genre } from "./Genre.entity";
 import { User } from "./User.entity";
+import { Music } from "./Music.entity";
 
 @Entity()
 export class Album extends CommonEntity {
@@ -11,6 +12,8 @@ export class Album extends CommonEntity {
     image: string
     @ManyToMany(() => Genre, (genre) => genre.album)
     genre: Partial<Genre>[]
-    @OneToMany(()=>User,(user)=>user.album)
-    user:User[]
+    @ManyToOne(() => User, (user) => user.albums, { eager: false, nullable: true })
+    user: User;
+    @OneToMany(() => Music, (music) => music.album)
+    music: Music[]
 }

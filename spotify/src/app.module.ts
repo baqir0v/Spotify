@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ClsModule } from 'nestjs-cls';
 import { AlbumModule } from './album/album.module';
+import { MusicModule } from './music/music.module';
 
 @Module({
   imports: [
@@ -31,11 +32,12 @@ import { AlbumModule } from './album/album.module';
     ClsModule.forRoot({
       global: true,
       middleware: { mount: true },
-      guard: { mount: true },
+      // guard: { mount: true },
     }),
     UserModule,
     AuthModule,
-    AlbumModule
+    AlbumModule,
+    MusicModule
   ],
   controllers: [AppController],
   providers: [AppService],
