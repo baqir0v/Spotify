@@ -13,8 +13,9 @@ export class RolesGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
    try {
     const request = context.switchToHttp().getRequest()
-    // console.log(request.headers);
     const token = request.headers.authorization
+    console.log('Authorization Header:', request.headers['authorization']);
+    console.log(request.headers);
     console.log(token);
     
 

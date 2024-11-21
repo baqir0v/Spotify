@@ -5,6 +5,7 @@ import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CreateMusicDto } from "./dto/create-music.dto";
 
+
 @ApiTags("music")
 @Controller("music")
 export class MusicController {
@@ -32,7 +33,7 @@ export class MusicController {
             properties: {
                 title: { type: 'string' },
                 image: { type: 'string' },
-                file: { type: 'string', format: 'binary' },
+                song: { type: 'string', format: 'binary' },
                 user: { type: 'number' },
                 album: { type: 'number' },
                 genre: { type: 'array', items: { type: 'number' } },
