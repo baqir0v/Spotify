@@ -11,6 +11,8 @@ import { ClsModule } from 'nestjs-cls';
 import { AlbumModule } from './album/album.module';
 import { MusicModule } from './music/music.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PassportModule } from '@nestjs/passport';
+// import { AuthGuard } from './guards/authguard.guard';
 
 @Module({
   imports: [
@@ -25,16 +27,12 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       synchronize: true,
       logging: false
     }),
-    JwtModule.register({
-      global: true,
-      secret: config.jwtSecret,
-      signOptions: { expiresIn: '10d' },
-    }),
     ClsModule.forRoot({
       global: true,
       middleware: { mount: true },
       // guard: { mount: true },
     }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     UserModule,
     AuthModule,
     AlbumModule,
