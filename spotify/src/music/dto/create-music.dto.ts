@@ -15,11 +15,8 @@ export class CreateMusicDto {
     @ApiProperty()
     image: string
 
-    @Type()
-    @IsString()
-    @Length(3, 500)
-    @ApiProperty()
-    song: string
+    @ApiProperty({ type: 'string', format: 'binary', description: 'The music file to upload' })
+    song: any; 
 
     @Type(() => Number)
     @ApiProperty()
@@ -31,7 +28,6 @@ export class CreateMusicDto {
 
     @IsArray()
     @Type(() => Number)
-    @IsOptional()
     @ApiProperty()
-    genre?: number[];
+    genre: number[];
 }

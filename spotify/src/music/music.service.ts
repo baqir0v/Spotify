@@ -1,17 +1,20 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Music } from "src/Entities/Music.entity";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
 import { FindOptionsWhere, In, Repository } from "typeorm";
 import { CreateMusicDto } from "./dto/create-music.dto";
 import { GenreService } from "src/genre/genre.service";
+import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import multer from "multer";
 
 @Injectable()
 export class MusicService {
     constructor(
         @InjectRepository(Music)
         private musicRepo: Repository<Music>,
-        private genreService: GenreService
+        private genreService: GenreService,
+        private cloudinaryService:CloudinaryService
     ) { }
 
     findAll(params: PaginationUserDto) {
@@ -26,20 +29,35 @@ export class MusicService {
         return album
     }
 
-    async create(params: CreateMusicDto) {
-        const genres = await this.genreService.findByIds(params.genre)
-
+    async create(params: CreateMusicDto, file: Express.Multer.File) {
+        if (!file) {
+            throw new BadRequestException('Music file is required');
+        }
+    
+        // Upload file to Cloudinary
+        const uploadResult = await this.cloudinaryService.uploadFile(file.buffer);
+    
+        // Fetch genres based on IDs
+        const genres = await this.genreService.findByIds(params.genre);
+    
         if (!genres || genres.length === 0) {
             throw new NotFoundException('No genres found for the given IDs');
         }
-
+    
+        // Save music metadata to the database
         const music = this.musicRepo.create({
             ...params,
+            song: uploadResult.secure_url, // Store the Cloudinary URL
             genre: genres,
             user: { id: params.user },
-            album: { id: params.album }
+            album: { id: params.album },
         });
-
+    
         return this.musicRepo.save(music);
     }
+    
 }
+
+// export const multerOptions = {
+//     storage: multer.memoryStorage(),
+// };

@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ClsModule } from 'nestjs-cls';
 import { AlbumModule } from './album/album.module';
 import { MusicModule } from './music/music.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { MusicModule } from './music/music.module';
     UserModule,
     AuthModule,
     AlbumModule,
-    MusicModule
+    MusicModule,
+    CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService],
