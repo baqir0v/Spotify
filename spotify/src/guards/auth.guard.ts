@@ -1,44 +1,39 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClsService } from 'nestjs-cls';
 import { Observable } from 'rxjs';
+import { User } from 'src/Entities/User.entity';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
-export class AuthGard implements CanActivate {
+export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
-    private cls: ClsService,
-  ) {}
-
+    private clsService: ClsService
+  ) { }
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    let req = context.switchToHttp().getRequest();
-
-    let token = req.headers.authorization || '';
-    token = token.split(' ')[1];
-
-    if (!token) throw new UnauthorizedException();
-
     try {
-      let payload = this.jwtService.verify(token);
-      if (!payload.userId) throw new Error();
+      const request = context.switchToHttp().getRequest()
 
-      let user = this.userService.findOne({ id: payload.userId });
-      if (!user) throw new Error();
+      const token = request.headers.authorization.split(" ")[1]
+      if (!token) throw new UnauthorizedException("Token doesn't exist")
 
-      this.cls.set('user', user);
+      const decoded = this.jwtService.verify(token)
+      request.user = decoded
+
+      console.log(decoded.userId);
+      
+
+      const user = this.userService.findOne({ id: decoded.userId })
+      this.clsService.set<User>("user", user)
+
       return true;
-    } catch (err) {
-      console.log(err);
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new UnauthorizedException("Invalid or expired token")
     }
   }
 }

@@ -15,6 +15,11 @@ export class AuthService {
         private cls: ClsService
     ) { }
 
+    log(){
+        console.log(this.cls.get("user"));
+        console.log("salam");
+    }
+
     async register(params: CreateUserDto) {
         let newPassword = await bcrypt.hash(params.password, 10)
         const user = await this.userService.create({ ...params, password: newPassword })
@@ -29,12 +34,7 @@ export class AuthService {
         const checkPassword = await bcrypt.compare(params.password, user.password)
         if (!checkPassword) throw new HttpException("Password is not correct", 404)
 
-        this.cls.set('user', user);
-
-        const me1 = this.cls.get<User>("user")
-        console.log(me1);
-
-        let token = this.jwtService.sign({ userId: user.id })
+        let token = this.jwtService.sign({ userId: user.id,role:user.role })
 
         return {
             token

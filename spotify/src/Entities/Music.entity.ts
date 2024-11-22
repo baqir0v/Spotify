@@ -3,6 +3,7 @@ import { CommonEntity } from "./Common.entity";
 import { User } from "./User.entity";
 import { Album } from "./Album.entity";
 import { Genre } from "./Genre.entity";
+import { Playlist } from "./Playlist.entity";
 
 @Entity()
 export class Music extends CommonEntity {
@@ -24,4 +25,7 @@ export class Music extends CommonEntity {
     @ManyToMany(() => Genre, (genre) => genre.music, { cascade: true })
     @JoinTable()
     genre: Genre[];
+
+    @ManyToMany(()=>Playlist,(playlist)=>playlist.music)
+    playlist:Playlist[]
 }

@@ -6,7 +6,6 @@ import { FindOptionsWhere, In, Repository } from "typeorm";
 import { CreateMusicDto } from "./dto/create-music.dto";
 import { GenreService } from "src/genre/genre.service";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
-import multer from "multer";
 
 @Injectable()
 export class MusicService {
@@ -34,20 +33,17 @@ export class MusicService {
             throw new BadRequestException('Music file is required');
         }
     
-        // Upload file to Cloudinary
         const uploadResult = await this.cloudinaryService.uploadFile(file.buffer);
     
-        // Fetch genres based on IDs
         const genres = await this.genreService.findByIds(params.genre);
     
         if (!genres || genres.length === 0) {
             throw new NotFoundException('No genres found for the given IDs');
         }
     
-        // Save music metadata to the database
         const music = this.musicRepo.create({
             ...params,
-            song: uploadResult.secure_url, // Store the Cloudinary URL
+            song: uploadResult.secure_url, 
             genre: genres,
             user: { id: params.user },
             album: { id: params.album },

@@ -3,6 +3,7 @@ import { CommonEntity } from "./Common.entity";
 import { UserRole } from "src/shared/enum/user.enum";
 import { Album } from "./Album.entity";
 import { Music } from "./Music.entity";
+import { Playlist } from "./Playlist.entity";
 
 @Entity()
 export class User extends CommonEntity {
@@ -43,4 +44,7 @@ export class User extends CommonEntity {
 
     @OneToMany(()=>Music,(music)=>music.user,{cascade:true})
     music:Music[]
+
+    @OneToMany(()=>Playlist,(playlist)=>playlist.user)
+    playlist:Playlist[]
 }

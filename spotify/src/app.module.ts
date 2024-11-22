@@ -4,15 +4,13 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import config from "./config/config";
 import { UserModule } from './user/user.module';
-import { User } from './Entities/User.entity';
 import { AuthModule } from './auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
 import { ClsModule } from 'nestjs-cls';
 import { AlbumModule } from './album/album.module';
 import { MusicModule } from './music/music.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PassportModule } from '@nestjs/passport';
-// import { AuthGuard } from './guards/authguard.guard';
+import { PlaylistModule } from './playlist/playlist.module';
 
 @Module({
   imports: [
@@ -27,19 +25,24 @@ import { PassportModule } from '@nestjs/passport';
       synchronize: true,
       logging: false
     }),
-    ClsModule.forRoot({
-      global: true,
-      middleware: { mount: true },
-      // guard: { mount: true },
+    ClsModule.forRootAsync({
+      useFactory: async () => ({
+        global: true,
+        middleware: { mount: true },
+        // guard: { mount: true },
+      }),
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UserModule,
     AuthModule,
     AlbumModule,
     MusicModule,
+    PlaylistModule,
     CloudinaryModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+  ],
 })
 export class AppModule { }

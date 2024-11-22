@@ -34,7 +34,9 @@ export class AlbumService {
     }
 
     async create(params: CreateAlbumDto) {
-        const me = this.cls.get<User>("user")
+        const me = await this.cls.get('user')
+        console.log(me);
+        
 
         const genre = await this.genreService.findOne({ id: params.genre })
 
@@ -45,6 +47,8 @@ export class AlbumService {
             genre: [genre],
             user: me
         })
+        // console.log(album.user);
+        
 
         return this.albumRepo.save(album);
     }

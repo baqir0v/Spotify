@@ -5,7 +5,6 @@ import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CreateMusicDto } from "./dto/create-music.dto";
 
-
 @ApiTags("music")
 @Controller("music")
 export class MusicController {

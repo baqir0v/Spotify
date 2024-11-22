@@ -6,6 +6,7 @@ import { UserService } from "src/user/user.service";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from "@nestjs/jwt";
 import config from "src/config/config";
+import { ClsModule } from "nestjs-cls";
 
 @Module({
     imports: [
@@ -14,7 +15,8 @@ import config from "src/config/config";
             secret: config.jwtSecret,
             signOptions: { expiresIn: '10d' },
           }),
-        UserModule
+        UserModule,
+        ClsModule
     ],
     controllers: [AuthController],
     providers: [AuthService],
