@@ -12,14 +12,4 @@ export class CreatePlaylistDto {
     @IsString()
     @ApiProperty()
     description: string
-
-    @Type()
-    @ApiProperty()
-    @IsNumber()
-    user: number
-
-    @Type(() => String)
-    @IsArray()
-    @ApiProperty()
-    music: string[]
 }

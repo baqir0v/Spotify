@@ -14,8 +14,8 @@ export class GenreService {
 
     findAll(params: PaginationGenreDto) {
         return this.genreRepo.find({
-            take: params.limit,
-            skip: params.skip || 10
+            take: params.limit || 10,
+            skip: params.skip
         })
     }
 
@@ -31,8 +31,8 @@ export class GenreService {
         return genres;
     }
 
-    async create(params:CreateGenreDto){
-        const genre = this.genreRepo.create({genre_name:params.genre_name}) 
+    async create(params: CreateGenreDto) {
+        const genre = this.genreRepo.create({ genre_name: params.genre_name })
 
         return this.genreRepo.save(genre)
     }

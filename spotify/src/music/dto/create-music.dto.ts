@@ -16,7 +16,7 @@ export class CreateMusicDto {
     image: string
 
     @ApiProperty({ type: 'string', format: 'binary', description: 'The music file to upload' })
-    song: any; 
+    song: any;
 
     @Type(() => Number)
     @ApiProperty()

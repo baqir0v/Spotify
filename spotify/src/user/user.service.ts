@@ -14,8 +14,8 @@ export class UserService {
 
     findAll(params: PaginationUserDto) {
         return this.userRepo.find({
-            take: params.limit,
-            skip: params.skip || 10
+            take: params.limit || 10,
+            skip: params.skip
         })
     }
 

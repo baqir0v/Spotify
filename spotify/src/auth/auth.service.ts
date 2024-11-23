@@ -16,7 +16,7 @@ export class AuthService {
     ) { }
 
     log(){
-        console.log(this.cls.get("user"));
+        // console.log(this.cls.get("user"));
         console.log("salam");
     }
 

@@ -23,8 +23,8 @@ export class AlbumService {
 
     findAll(params: PaginationUserDto) {
         return this.albumRepo.find({
-            take: params.limit,
-            skip: params.skip || 10
+            take: params.limit || 10,
+            skip: params.skip
         })
     }
 
@@ -36,7 +36,7 @@ export class AlbumService {
     async create(params: CreateAlbumDto) {
         const me = await this.cls.get('user')
         console.log(me);
-        
+
 
         const genre = await this.genreService.findOne({ id: params.genre })
 
@@ -48,7 +48,7 @@ export class AlbumService {
             user: me
         })
         // console.log(album.user);
-        
+
 
         return this.albumRepo.save(album);
     }
