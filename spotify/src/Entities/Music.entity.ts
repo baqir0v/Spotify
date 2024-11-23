@@ -1,9 +1,10 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { CommonEntity } from "./Common.entity";
 import { User } from "./User.entity";
 import { Album } from "./Album.entity";
 import { Genre } from "./Genre.entity";
 import { Playlist } from "./Playlist.entity";
+import { PlaylistMusic } from "./PlaylistMusic.entity";
 
 @Entity()
 export class Music extends CommonEntity {
@@ -15,6 +16,9 @@ export class Music extends CommonEntity {
 
     @Column()
     song: string
+
+    @OneToMany(() => PlaylistMusic, (playlistMusic) => playlistMusic.music)
+    playlistMusics: PlaylistMusic[];
 
     @ManyToOne(() => User, (user) => user.music)
     user: User

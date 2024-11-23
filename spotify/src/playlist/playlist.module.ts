@@ -6,10 +6,11 @@ import { PlaylistController } from "./playlist.controller";
 import { ClsModule } from "nestjs-cls";
 import { UserModule } from "src/user/user.module";
 import { Music } from "src/Entities/Music.entity";
+import { PlaylistMusic } from "src/Entities/PlaylistMusic.entity";
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Playlist,Music]),
+        TypeOrmModule.forFeature([Playlist,Music,PlaylistMusic]),
         ClsModule,
         UserModule
     ],

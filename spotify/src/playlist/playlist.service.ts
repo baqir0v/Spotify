@@ -6,8 +6,9 @@ import { FindOptionsWhere, Repository } from "typeorm";
 import { CreatePlaylistDto } from "./dto/create-playlist.dto";
 import { ClsService } from "nestjs-cls";
 import { User } from "src/Entities/User.entity";
-import { AddMusicToPlaylistDto } from "./dto/add-to-playlist.dot";
 import { Music } from "src/Entities/Music.entity";
+import { PlaylistMusic } from "src/Entities/PlaylistMusic.entity";
+import { ReorderPlaylistDto } from "./dto/reorder.dto";
 
 @Injectable()
 export class PlaylistService {
@@ -16,6 +17,8 @@ export class PlaylistService {
         private playlistRepo: Repository<Playlist>,
         @InjectRepository(Music)
         private musicRepo: Repository<Music>,
+        @InjectRepository(PlaylistMusic)
+        private playlistMusicRepo: Repository<PlaylistMusic>,
         private cls: ClsService,
     ) { }
 
@@ -42,23 +45,83 @@ export class PlaylistService {
         return this.playlistRepo.save(playlist)
     }
 
-    async addMusicToPlaylist(params: AddMusicToPlaylistDto) {
-        const playlist = await this.playlistRepo.findOne({
-            where: { id: params.playlistId }
-        })
+    async getPlaylistWithMusic(playlistId: number) {
+        const playlist = await this.playlistRepo
+            .createQueryBuilder('playlist')
+            .leftJoinAndSelect('playlist.playlistMusics', 'playlistMusic')
+            .leftJoinAndSelect('playlistMusic.music', 'music')
+            .where('playlist.id = :playlistId', { playlistId })
+            .orderBy('playlistMusic.order', 'ASC') 
+            .getOne();
 
-        if (!playlist) throw new NotFoundException("Playlist not found")
-
-        const musics = await this.musicRepo.findByIds(params.musicIds)
-
-        if (musics.length !== params.musicIds.length) {
-            throw new NotFoundException('One or more music IDs are invalid');
+        if (!playlist) {
+            throw new NotFoundException('Playlist not found');
         }
 
-        playlist.music = [...(playlist.music || []), ...musics];
-
-        return this.playlistRepo.save(playlist);
+        return playlist;
     }
 
 
+    async addMusicToPlaylist(playlistId: number, musicIds: number[], order?: number[]) {
+        const playlist = await this.playlistRepo.findOne({
+            where: { id: playlistId },
+        });
+
+        if (!playlist) {
+            throw new NotFoundException('Playlist not found');
+        }
+
+        const musics = await this.musicRepo.findByIds(musicIds);
+
+        if (musics.length !== musicIds.length) {
+            throw new NotFoundException('One or more music IDs are invalid');
+        }
+
+        const maxOrderResult = await this.playlistMusicRepo
+            .createQueryBuilder('playlistMusic')
+            .select('MAX(playlistMusic.order)', 'maxOrder')
+            .where('playlistMusic.playlistId = :playlistId', { playlistId })
+            .getRawOne();
+        const currentMaxOrder = maxOrderResult?.maxOrder || 0;
+
+        for (let i = 0; i < musics.length; i++) {
+            const playlistMusic = new PlaylistMusic();
+            playlistMusic.playlist = playlist;
+            playlistMusic.music = musics[i];
+            playlistMusic.order = order && order[i] ? order[i] : currentMaxOrder + i + 1;
+
+            await this.playlistMusicRepo.save(playlistMusic);
+        }
+
+        return { message: 'Music added to playlist successfully' };
+    }
+
+    async reorderMusicInPlaylist(params: ReorderPlaylistDto) {
+        const { playlistId, musicOrder } = params;
+    
+        const playlist = await this.playlistRepo.findOne({
+            where: { id: playlistId },
+            relations: ['playlistMusics'],
+        });
+    
+        if (!playlist) {
+            throw new NotFoundException('Playlist not found');
+        }
+    
+        const musicIdsInPlaylist = playlist.playlistMusics.map(pm => pm.music.id);
+        const invalidIds = musicOrder.map(mo => mo.musicId).filter(id => !musicIdsInPlaylist.includes(id));
+        if (invalidIds.length > 0) {
+            throw new NotFoundException(`Music IDs not in playlist: ${invalidIds.join(', ')}`);
+        }
+    
+        for (const { musicId, order } of musicOrder) {
+            await this.playlistMusicRepo.update(
+                { playlist: { id: playlistId }, music: { id: musicId } },
+                { order },
+            );
+        }
+    
+        return { message: 'Music order updated successfully' };
+    }
+    
 }
