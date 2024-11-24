@@ -11,7 +11,7 @@ export class Music extends CommonEntity {
     @Column()
     title: string
 
-    @Column()
+    @Column({default:"https://res.cloudinary.com/dj1tjerlk/image/upload/v1732461444/ffrgsapjyiuq0clq1u9d.jpg"})
     image: string
 
     @Column()

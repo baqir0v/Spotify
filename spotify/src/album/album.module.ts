@@ -7,16 +7,18 @@ import { Genre } from "src/Entities/Genre.entity";
 import { GenreModule } from "src/genre/genre.module";
 import { ClsModule } from "nestjs-cls";
 import { UserModule } from "src/user/user.module";
+import { CloudinaryModule } from "src/cloudinary/cloudinary.module";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Album, Genre]),
         GenreModule,
         ClsModule,
-        UserModule
+        UserModule,
+        CloudinaryModule
     ],
     controllers: [AlbumController],
     providers: [AlbumService],
-    exports: [],
+    exports: [AlbumService],
 })
 export class AlbumModule { }

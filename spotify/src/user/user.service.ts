@@ -1,15 +1,20 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PaginationUserDto } from "./dto/pagination-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/Entities/User.entity";
 import { FindOptionsWhere, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { ClsService } from "nestjs-cls";
+import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private userRepo: Repository<User>
+        private userRepo: Repository<User>,
+        private cls:ClsService,
+        private cloudinaryService: CloudinaryService
+
     ) { }
 
     findAll(params: PaginationUserDto) {
@@ -34,5 +39,30 @@ export class UserService {
         const user = this.userRepo.create(params)
 
         return this.userRepo.save(user)
+    }
+
+    async changeImage(file:Express.Multer.File){
+        const me = await this.cls.get<User>("user")
+
+        if (!me) {
+            throw new UnauthorizedException("User is not logged in");
+        }
+    
+        if (!file) {
+            throw new BadRequestException("Image file is required");
+        }
+
+        const imageResult = await this.cloudinaryService.uploadFile(file.buffer);
+
+        const user = await this.userRepo.findOne({where:{id:me.id}})
+
+        user.image = imageResult.secure_url
+
+        await this.userRepo.save(user);
+
+        return {
+            message: "Image updated successfully",
+            imageUrl: user.image
+        };
     }
 }

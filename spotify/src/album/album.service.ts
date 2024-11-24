@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ClsService } from "nestjs-cls";
 import { Album } from "src/Entities/Album.entity";
@@ -8,6 +8,7 @@ import { CreateAlbumDto } from "./dto/create-album.dto";
 import { Genre } from "src/Entities/Genre.entity";
 import { GenreService } from "src/genre/genre.service";
 import { User } from "src/Entities/User.entity";
+import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 
 @Injectable()
 export class AlbumService {
@@ -17,7 +18,8 @@ export class AlbumService {
         private albumRepo: Repository<Album>,
         @InjectRepository(Genre)
         private genreRepo: Repository<Genre>,
-        private genreService: GenreService
+        private genreService: GenreService,
+        private cloudinaryService: CloudinaryService
     ) { }
 
     findAll(params: PaginationUserDto) {
@@ -47,12 +49,15 @@ export class AlbumService {
         return album;
     }
     
+    async create(params: CreateAlbumDto,file:Express.Multer.File) {
+        if (!file) {
+            throw new BadRequestException('Music file is required');
+        }
 
-
-    async create(params: CreateAlbumDto) {
         const me = await this.cls.get('user')
         console.log(me);
 
+        const imageResult = await this.cloudinaryService.uploadFile(file.buffer);
 
         const genre = await this.genreService.findOne({ id: params.genre })
 
@@ -60,6 +65,7 @@ export class AlbumService {
 
         const album = this.albumRepo.create({
             ...params,
+            image:imageResult.secure_url,
             genre: [genre],
             user: me
         })

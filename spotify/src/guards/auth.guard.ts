@@ -27,8 +27,8 @@ export class AuthGuard implements CanActivate {
 
       console.log(decoded.userId);
       
-
       const user = this.userService.findOne({ id: decoded.userId })
+
       this.clsService.set<User>("user", user)
 
       return true;

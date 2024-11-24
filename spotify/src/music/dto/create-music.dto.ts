@@ -9,18 +9,18 @@ export class CreateMusicDto {
     @ApiProperty()
     title: string
 
-    @Type()
-    @IsString()
-    @Length(3, 200)
-    @ApiProperty()
-    image: string
+    // @Type()
+    // @IsString()
+    // @Length(3, 200)
+    // @ApiProperty()
+    // image: string
 
     @ApiProperty({ type: 'string', format: 'binary', description: 'The music file to upload' })
     song: any;
 
-    @Type(() => Number)
-    @ApiProperty()
-    user: number;
+    // @Type(() => Number)
+    // @ApiProperty()
+    // user: number;
 
     @Type(() => Number)
     @ApiProperty()
@@ -28,6 +28,6 @@ export class CreateMusicDto {
 
     @IsArray()
     @Type(() => Number)
-    @ApiProperty()
+    @ApiProperty({ type: [Number] })
     genre: number[];
 }

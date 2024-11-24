@@ -9,11 +9,8 @@ export class CreateAlbumDto{
     @ApiProperty()
     title: string
 
-    @Type()
-    @IsString()
-    @Length(3,200)
-    @ApiProperty()
-    image: string
+    @ApiProperty({ type: 'string', format: 'binary'})
+    image: any;
 
     // @Type()
     // @ApiProperty()

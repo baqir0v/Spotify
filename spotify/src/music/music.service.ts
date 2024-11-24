@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Music } from "src/Entities/Music.entity";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
@@ -7,14 +7,19 @@ import { CreateMusicDto } from "./dto/create-music.dto";
 import { GenreService } from "src/genre/genre.service";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 import { User } from "src/Entities/User.entity";
+import { ClsService } from "nestjs-cls";
+import { Album } from "src/Entities/Album.entity";
 
 @Injectable()
 export class MusicService {
     constructor(
         @InjectRepository(Music)
         private musicRepo: Repository<Music>,
+        @InjectRepository(Album)
+        private albumRepo: Repository<Album>,
         private genreService: GenreService,
-        private cloudinaryService: CloudinaryService
+        private cloudinaryService: CloudinaryService,
+        private cls: ClsService,
     ) { }
 
     findAll(params: PaginationUserDto) {
@@ -44,10 +49,25 @@ export class MusicService {
             throw new BadRequestException('Music file is required');
         }
 
+        let user = await this.cls.get<User>("user")
+
+        if (user) {
+            user = {
+                id: user.id,
+                role: user.role,
+            } as User; 
+        }
+
         const uploadResult = await this.cloudinaryService.uploadFile(file.buffer);
+
+        console.log(params.genre);
+        
+        const album = await this.albumRepo.findOne({ where: { id: params.album } });
 
         const genres = await this.genreService.findByIds(params.genre);
 
+        console.log(genres);
+        
         if (!genres || genres.length === 0) {
             throw new NotFoundException('No genres found for the given IDs');
         }
@@ -56,11 +76,36 @@ export class MusicService {
             ...params,
             song: uploadResult.secure_url,
             genre: genres,
-            user: { id: params.user },
-            album: { id: params.album },
+            user,
+            album,
         });
 
         return this.musicRepo.save(music);
+    }
+
+    async changeImage(id:number,file:Express.Multer.File){
+        const me = await this.cls.get<User>("user")
+
+        if (!me) {
+            throw new UnauthorizedException("User is not logged in");
+        }
+    
+        if (!file) {
+            throw new BadRequestException("Image file is required");
+        }
+
+        const imageResult = await this.cloudinaryService.uploadFile(file.buffer);
+
+        const music = await this.musicRepo.findOne({where:{id:id}})
+
+        music.image = imageResult.secure_url
+
+        await this.musicRepo.save(music);
+
+        return {
+            message: "Image updated successfully",
+            imageUrl: music.image
+        };
     }
 
 }

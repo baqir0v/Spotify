@@ -45,7 +45,7 @@ export class PlaylistController {
     }
     
 
-    @Post('reorder')
+    @Put('reorder')
     async reorderMusicInPlaylist(@Body() body: ReorderPlaylistDto) {
         return this.playlistService.reorderMusicInPlaylist(body);
     }
