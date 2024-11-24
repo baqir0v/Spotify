@@ -1,32 +1,27 @@
-import { IsArray, IsNumber, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsArray, IsOptional, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class AddMusicToPlaylistDto {
-    @Type(() => Number)
-    @IsNumber()
-    @ApiProperty({ description: 'Playlist ID', example: 1 })
-    playlistId: number;
-
-    @Type(() => Number)
-    @IsArray()
-    @IsNumber({}, { each: true })
     @ApiProperty({
         type: [Number],
         description: 'Array of Music IDs to add to the playlist',
         example: [2, 3, 4],
     })
+    @IsArray()
+    @Type(() => Number)
+    @IsNumber({}, { each: true })
     musicIds: number[];
 
-    @Type(() => Number)
-    @IsArray()
-    @IsOptional()
-    @IsNumber({}, { each: true })
     @ApiProperty({
         type: [Number],
         description: 'Optional order for the music IDs',
         required: false,
         example: [1, 2, 3],
     })
+    @IsArray()
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber({}, { each: true })
     order?: number[];
 }

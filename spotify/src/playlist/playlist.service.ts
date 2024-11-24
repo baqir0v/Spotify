@@ -66,62 +66,77 @@ export class PlaylistService {
         const playlist = await this.playlistRepo.findOne({
             where: { id: playlistId },
         });
-
+    
         if (!playlist) {
             throw new NotFoundException('Playlist not found');
         }
-
+    
         const musics = await this.musicRepo.findByIds(musicIds);
-
+    
         if (musics.length !== musicIds.length) {
             throw new NotFoundException('One or more music IDs are invalid');
         }
-
+    
         const maxOrderResult = await this.playlistMusicRepo
             .createQueryBuilder('playlistMusic')
             .select('MAX(playlistMusic.order)', 'maxOrder')
             .where('playlistMusic.playlistId = :playlistId', { playlistId })
             .getRawOne();
         const currentMaxOrder = maxOrderResult?.maxOrder || 0;
-
+    
         for (let i = 0; i < musics.length; i++) {
             const playlistMusic = new PlaylistMusic();
             playlistMusic.playlist = playlist;
             playlistMusic.music = musics[i];
             playlistMusic.order = order && order[i] ? order[i] : currentMaxOrder + i + 1;
-
+    
             await this.playlistMusicRepo.save(playlistMusic);
         }
-
+    
         return { message: 'Music added to playlist successfully' };
     }
+    
 
     async reorderMusicInPlaylist(params: ReorderPlaylistDto) {
         const { playlistId, musicOrder } = params;
-    
+
+        // Fetch the playlist and validate existence
         const playlist = await this.playlistRepo.findOne({
             where: { id: playlistId },
-            relations: ['playlistMusics'],
+            relations: ['playlistMusics', 'playlistMusics.music'],
         });
-    
+
         if (!playlist) {
             throw new NotFoundException('Playlist not found');
         }
-    
-        const musicIdsInPlaylist = playlist.playlistMusics.map(pm => pm.music.id);
-        const invalidIds = musicOrder.map(mo => mo.musicId).filter(id => !musicIdsInPlaylist.includes(id));
+
+        // Validate that provided music IDs exist in the playlist
+        const musicIdsInPlaylist = playlist.playlistMusics.map((pm) => pm.music.id);
+        const invalidIds = musicOrder
+            .map((mo) => mo.musicId)
+            .filter((id) => !musicIdsInPlaylist.includes(id));
+
         if (invalidIds.length > 0) {
             throw new NotFoundException(`Music IDs not in playlist: ${invalidIds.join(', ')}`);
         }
-    
+
+        // Update the order for each music in the playlist
         for (const { musicId, order } of musicOrder) {
-            await this.playlistMusicRepo.update(
+            const result = await this.playlistMusicRepo.update(
                 { playlist: { id: playlistId }, music: { id: musicId } },
-                { order },
+                { order }
             );
+
+            // Check if the update was successful
+            if (result.affected === 0) {
+                throw new NotFoundException(
+                    `Music with ID ${musicId} not found in playlist ${playlistId}`
+                );
+            }
         }
-    
+
         return { message: 'Music order updated successfully' };
     }
+    
     
 }

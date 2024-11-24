@@ -1,0 +1,7 @@
+{
+  "playlistId": 5,
+  "musicOrder": [
+    { "musicId": 2, "order": 2 },
+    { "musicId": 3, "order": 1 }
+  ]
+}

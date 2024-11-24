@@ -20,8 +20,8 @@ export class AlbumController{
 
     @Get(":id")
     findOne(@Param("id") id: number) {
-        return this.albumService.findOne({ id })
-    }
+        return this.albumService.findOne({ id });
+    }    
 
     @Post()
     create(@Body() body:CreateAlbumDto){

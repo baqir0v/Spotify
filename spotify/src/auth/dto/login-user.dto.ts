@@ -4,7 +4,7 @@ import { IsEmail, IsString, Length } from "class-validator";
 
 export class LoginUserDto {
     @Type()
-    @IsEmail()
+    @IsString()
     @ApiProperty()
     email:string
     @Type()

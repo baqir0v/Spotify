@@ -5,7 +5,6 @@ import { UserService } from "src/user/user.service";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { JwtService } from "@nestjs/jwt";
 import { ClsService } from "nestjs-cls";
-import { User } from "src/Entities/User.entity";
 
 @Injectable()
 export class AuthService {

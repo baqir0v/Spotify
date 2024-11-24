@@ -2,13 +2,12 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ClsService } from "nestjs-cls";
 import { Album } from "src/Entities/Album.entity";
-import { User } from "src/Entities/User.entity";
-import { FindOneParams, FindParams } from "src/shared/types/find.params";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
 import { FindOptionsWhere, Repository } from "typeorm";
 import { CreateAlbumDto } from "./dto/create-album.dto";
 import { Genre } from "src/Entities/Genre.entity";
 import { GenreService } from "src/genre/genre.service";
+import { User } from "src/Entities/User.entity";
 
 @Injectable()
 export class AlbumService {
@@ -29,9 +28,26 @@ export class AlbumService {
     }
 
     async findOne(where: FindOptionsWhere<Album> | FindOptionsWhere<Album>[]) {
-        const album = await this.albumRepo.findOne({ where })
-        return album
+        const album = await this.albumRepo.findOne({
+            where,
+            relations: ['user', 'genre'], // Include relations
+        });
+    
+        if (!album) {
+            throw new NotFoundException('Album not found');
+        }
+    
+        if (album.user) {
+            album.user = {
+                id: album.user.id,
+                role: album.user.role,
+            } as User; 
+        }
+    
+        return album;
     }
+    
+
 
     async create(params: CreateAlbumDto) {
         const me = await this.cls.get('user')
@@ -47,8 +63,6 @@ export class AlbumService {
             genre: [genre],
             user: me
         })
-        // console.log(album.user);
-
 
         return this.albumRepo.save(album);
     }

@@ -6,6 +6,7 @@ import { FindOptionsWhere, In, Repository } from "typeorm";
 import { CreateMusicDto } from "./dto/create-music.dto";
 import { GenreService } from "src/genre/genre.service";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import { User } from "src/Entities/User.entity";
 
 @Injectable()
 export class MusicService {
@@ -24,8 +25,18 @@ export class MusicService {
     }
 
     async findOne(where: FindOptionsWhere<Music> | FindOptionsWhere<Music>[]) {
-        const album = await this.musicRepo.findOne({ where })
-        return album
+        const music = await this.musicRepo.findOne({
+            where,
+            relations: ["user", "genre", "album"]
+        })
+
+        if (music.user) {
+            music.user = {
+                id: music.user.id,
+                role: music.user.role,
+            } as User;
+        }
+        return music
     }
 
     async create(params: CreateMusicDto, file: Express.Multer.File) {

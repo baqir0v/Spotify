@@ -43,11 +43,11 @@ export class PlaylistController {
     ) {
         return this.playlistService.addMusicToPlaylist(playlistId, body.musicIds, body.order);
     }
+    
 
     @Post('reorder')
-    reorderPlaylist(@Body() reorderDto: ReorderPlaylistDto) {
-        console.log(reorderDto);
-        return { message: 'Playlist reordered successfully' };
+    async reorderMusicInPlaylist(@Body() body: ReorderPlaylistDto) {
+        return this.playlistService.reorderMusicInPlaylist(body);
     }
     
 }
