@@ -11,6 +11,7 @@ import { MusicModule } from './music/music.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PassportModule } from '@nestjs/passport';
 import { PlaylistModule } from './playlist/playlist.module';
+import { SettingModule } from './Settings/setting.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { PlaylistModule } from './playlist/playlist.module';
     AlbumModule,
     MusicModule,
     PlaylistModule,
-    CloudinaryModule
+    CloudinaryModule,
+    SettingModule
   ],
   controllers: [AppController],
   providers: [
