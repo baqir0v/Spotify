@@ -6,6 +6,7 @@ import { FindOptionsWhere, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ClsService } from "nestjs-cls";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import { UserRole } from "src/shared/enum/user.enum";
 
 @Injectable()
 export class UserService {
@@ -25,7 +26,7 @@ export class UserService {
     }
 
     async findOne(where: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
-        const user = await this.userRepo.findOne({ where })
+        let user = await this.userRepo.findOne({ where })
         return user
     }
 
@@ -66,10 +67,32 @@ export class UserService {
         };
     }
 
+    async changerole(id: number): Promise<string> {
+        const user = await this.userRepo.findOne({ where: { id } });
+    
+        if (!user) {
+            throw new NotFoundException("User not found");
+        }
+    
+        if (user.role.includes(UserRole.SUPER_ADMIN)) {
+            throw new Error("This user is a Super Admin and cannot have their role changed");
+        }
+    
+        if (user.role.includes(UserRole.ADMIN)) {
+            user.role = [UserRole.USER];
+        } else if (user.role.includes(UserRole.USER)) {
+            user.role = [UserRole.ADMIN];
+        }
+    
+        await this.userRepo.save(user);
+    
+        return `User role has been updated to ${user.role}`;
+    }
+    
     async delete(id: number) {
         const user = await this.userRepo.findOne({ where: { id: id } })
 
-        if(!user) throw new NotFoundException("User not found")
+        if (!user) throw new NotFoundException("User not found")
 
         await this.userRepo.remove(user)
 

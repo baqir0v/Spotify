@@ -22,7 +22,7 @@ export class SettingController {
 
     @UseGuards(RolesGuard)
     @Put()
-    @UseInterceptors(FileInterceptor('logo')) // Handles file upload for 'logo'
+    @UseInterceptors(FileInterceptor('logo')) 
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         description: 'Update settings with optional logo upload',
@@ -32,13 +32,13 @@ export class SettingController {
                 siteName: { type: 'string' },
                 aboutUs: { type: 'string' },
                 contactDetails: { type: 'string' },
-                logo: { type: 'string', format: 'binary' }, // File upload field
+                logo: { type: 'string', format: 'binary' }, 
             },
         },
     })
     async updateSettings(
         @Body() updateData: UpdateSettingsDto,
-        @UploadedFile() file: Express.Multer.File, // Handles uploaded file
+        @UploadedFile() file: Express.Multer.File,
     ) {
         return this.settingsService.updateSettings(updateData, file);
     }

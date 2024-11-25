@@ -22,7 +22,7 @@ export class User extends CommonEntity {
     @Column({ default: "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg" })
     image: string
 
-    @Column()
+    @Column({default:false})
     isOnline: boolean
 
     @Column({ type: "timestamp" })

@@ -24,7 +24,7 @@ export class CloudinaryService {
                     resolve(result);
                 },
             );
-            stream.end(buffer); // Send the buffer to Cloudinary
+            stream.end(buffer); 
         });
     }
 }

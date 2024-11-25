@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsBoolean, IsDate, IsEmail, IsEnum, IsString, Length, MaxDate } from "class-validator";
-import * as dateFns from 'date-fns';
 import { UserRole } from "src/shared/enum/user.enum";
+// import * as dateFns from 'date-fns';
 
 export class CreateUserDto {
     @Type()
@@ -18,8 +18,11 @@ export class CreateUserDto {
     nickName: string;
 
     @Type()
-    @IsEmail()
-    @ApiProperty()
+    @IsEmail({}, { message: 'Please provide a valid email address' }) // Custom error message
+    @ApiProperty({
+        example: 'user@example.com',
+        description: 'The email must be in valid email format (e.g., user@example.com)',
+    })
     email: string;
 
     @Type()
@@ -28,10 +31,10 @@ export class CreateUserDto {
     @ApiProperty()
     password: string;
 
-    @Type()
-    @IsString()
-    @ApiProperty({default:"https://res.cloudinary.com/dj1tjerlk/image/upload/v1721132578/user/sm3ldanphpvsfkz0urha.jpg"})
-    image:string
+    // @Type()
+    // @IsString()
+    // @ApiProperty({default:"https://res.cloudinary.com/dj1tjerlk/image/upload/v1721132578/user/sm3ldanphpvsfkz0urha.jpg"})
+    // image:string
 
     @Type()
     @IsBoolean()
@@ -40,9 +43,9 @@ export class CreateUserDto {
 
     @Type()
     @IsDate()
-    @MaxDate(() => dateFns.add(new Date(), { years: -10 }), {
-        message: 'You are too young',
-    })
+    // @MaxDate(() => dateFns.add(new Date(), { years: -10 }), {
+    //     message: 'You are too young',
+    // })
     @ApiProperty()
     birthDate: Date;
 

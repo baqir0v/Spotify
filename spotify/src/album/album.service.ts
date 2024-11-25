@@ -32,7 +32,7 @@ export class AlbumService {
     async findOne(where: FindOptionsWhere<Album> | FindOptionsWhere<Album>[]) {
         const album = await this.albumRepo.findOne({
             where,
-            relations: ['user', 'genre'], // Include relations
+            relations: ['user', 'genre'], 
         });
     
         if (!album) {
