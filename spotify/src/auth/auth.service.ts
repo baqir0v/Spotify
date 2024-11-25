@@ -14,10 +14,10 @@ export class AuthService {
         private cls: ClsService
     ) { }
 
-    log(){
-        // console.log(this.cls.get("user"));
-        console.log("salam");
-    }
+    // log(){
+    //     // console.log(this.cls.get("user"));
+    //     console.log("salam");
+    // }
 
     async register(params: CreateUserDto) {
         let newPassword = await bcrypt.hash(params.password, 10)

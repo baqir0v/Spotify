@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { PaginationUserDto } from "./dto/pagination-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/Entities/User.entity";
@@ -12,7 +12,7 @@ export class UserService {
     constructor(
         @InjectRepository(User)
         private userRepo: Repository<User>,
-        private cls:ClsService,
+        private cls: ClsService,
         private cloudinaryService: CloudinaryService
 
     ) { }
@@ -41,20 +41,20 @@ export class UserService {
         return this.userRepo.save(user)
     }
 
-    async changeImage(file:Express.Multer.File){
+    async changeImage(file: Express.Multer.File) {
         const me = await this.cls.get<User>("user")
 
         if (!me) {
             throw new UnauthorizedException("User is not logged in");
         }
-    
+
         if (!file) {
             throw new BadRequestException("Image file is required");
         }
 
         const imageResult = await this.cloudinaryService.uploadFile(file.buffer);
 
-        const user = await this.userRepo.findOne({where:{id:me.id}})
+        const user = await this.userRepo.findOne({ where: { id: me.id } })
 
         user.image = imageResult.secure_url
 
@@ -64,5 +64,15 @@ export class UserService {
             message: "Image updated successfully",
             imageUrl: user.image
         };
+    }
+
+    async delete(id: number) {
+        const user = await this.userRepo.findOne({ where: { id: id } })
+
+        if(!user) throw new NotFoundException("User not found")
+
+        await this.userRepo.remove(user)
+
+        return user
     }
 }

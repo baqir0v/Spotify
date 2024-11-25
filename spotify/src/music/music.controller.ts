@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { MusicService } from "./music.service";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CreateMusicDto } from "./dto/create-music.dto";
 import { AuthGuard } from "src/guards/auth.guard";
+import { RolesGuard } from "src/guards/roles.guard";
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags("music")
@@ -52,8 +53,8 @@ export class MusicController {
             return this.musicService.create(createMusicDto, file);
         }
 
-    @Patch(':id/image') // Define the route with PATCH method for updating image
-    @UseInterceptors(FileInterceptor('file')) // Interceptor for handling file uploads
+    @Patch(':id/image') 
+    @UseInterceptors(FileInterceptor('file')) 
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -65,9 +66,15 @@ export class MusicController {
     })
 
     async changeImage(
-        @Param('id') id: number, // Capture the music ID from the URL
-        @UploadedFile() file: Express.Multer.File, // Capture the uploaded file
+        @Param('id') id: number, 
+        @UploadedFile() file: Express.Multer.File, 
     ) {
-        return this.musicService.changeImage(id, file); // Call the service function
+        return this.musicService.changeImage(id, file); 
+    }
+
+    @UseGuards(RolesGuard)
+    @Delete(":id")
+    remove(@Param("id") id: number) {
+        return this.musicService.delete(id)
     }
 } 

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Genre } from "src/Entities/Genre.entity";
 import { FindOptionsWhere, In, Repository } from "typeorm";
@@ -35,5 +35,15 @@ export class GenreService {
         const genre = this.genreRepo.create({ genre_name: params.genre_name })
 
         return this.genreRepo.save(genre)
+    }
+
+    async delete(id:number){
+        const genre = await this.genreRepo.findOne({where:{id}})
+
+        if(!genre) throw new NotFoundException("This genre doesn't exist")
+
+        await this.genreRepo.remove(genre)
+
+        return genre
     }
 }

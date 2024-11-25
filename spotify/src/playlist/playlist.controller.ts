@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { PlaylistService } from "./playlist.service";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { PaginationUserDto } from "src/user/dto/pagination-user.dto";
@@ -6,6 +6,7 @@ import { CreatePlaylistDto } from "./dto/create-playlist.dto";
 import { AuthGuard } from "src/guards/auth.guard";
 import { AddMusicToPlaylistDto } from "./dto/add-to-playlist.dot";
 import { ReorderPlaylistDto } from "./dto/reorder.dto";
+import { RolesGuard } from "src/guards/roles.guard";
 
 @ApiTags("playlist")
 @ApiBearerAuth('JWT-auth')
@@ -48,6 +49,12 @@ export class PlaylistController {
     @Put('reorder')
     async reorderMusicInPlaylist(@Body() body: ReorderPlaylistDto) {
         return this.playlistService.reorderMusicInPlaylist(body);
+    }
+
+    @UseGuards(RolesGuard)
+    @Delete(":id")
+    delete(@Param("id") id:number){
+        return this.playlistService.delete(id)
     }
     
 }

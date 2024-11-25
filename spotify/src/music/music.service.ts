@@ -55,19 +55,19 @@ export class MusicService {
             user = {
                 id: user.id,
                 role: user.role,
-            } as User; 
+            } as User;
         }
 
         const uploadResult = await this.cloudinaryService.uploadFile(file.buffer);
 
         console.log(params.genre);
-        
+
         const album = await this.albumRepo.findOne({ where: { id: params.album } });
 
         const genres = await this.genreService.findByIds(params.genre);
 
         console.log(genres);
-        
+
         if (!genres || genres.length === 0) {
             throw new NotFoundException('No genres found for the given IDs');
         }
@@ -83,20 +83,20 @@ export class MusicService {
         return this.musicRepo.save(music);
     }
 
-    async changeImage(id:number,file:Express.Multer.File){
+    async changeImage(id: number, file: Express.Multer.File) {
         const me = await this.cls.get<User>("user")
 
         if (!me) {
             throw new UnauthorizedException("User is not logged in");
         }
-    
+
         if (!file) {
             throw new BadRequestException("Image file is required");
         }
 
         const imageResult = await this.cloudinaryService.uploadFile(file.buffer);
 
-        const music = await this.musicRepo.findOne({where:{id:id}})
+        const music = await this.musicRepo.findOne({ where: { id: id } })
 
         music.image = imageResult.secure_url
 
@@ -108,8 +108,16 @@ export class MusicService {
         };
     }
 
-}
+    async delete(id: number) {
+        const music = await this.musicRepo.findOne({ where: { id } });
 
-// export const multerOptions = {
-//     storage: multer.memoryStorage(),
-// };
+        if (!music) {
+            throw new NotFoundException(`Album with ID ${id} not found`);
+        }
+
+        await this.musicRepo.remove(music);
+
+        return music
+    }
+
+}

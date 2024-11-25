@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { PaginationUserDto } from "./dto/pagination-user.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { AuthGuard } from "src/guards/auth.guard";
+import { RolesGuard } from "src/guards/roles.guard";
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('user')
@@ -12,6 +13,7 @@ import { AuthGuard } from "src/guards/auth.guard";
 export class UserController {
     constructor(private userService: UserService) { }
 
+    @UseGuards(RolesGuard)
     @Get()
     findAll(@Query() params: PaginationUserDto) {
         return this.userService.findAll(params)
@@ -38,5 +40,11 @@ export class UserController {
         @UploadedFile() file: Express.Multer.File,
     ) {
         return this.userService.changeImage(file);
+    }
+
+    @UseGuards(RolesGuard)
+    @Delete(":id")
+    remove(@Param("id") id:number){
+        return this.userService.delete(id)
     }
 }

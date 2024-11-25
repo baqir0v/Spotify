@@ -9,10 +9,10 @@ import { LoginUserDto } from "./dto/login-user.dto";
 export class AuthController{
     constructor( private authService:AuthService){}
 
-    @Get()
-    log(){
-        return this.authService.log()
-    }
+    // @Get()
+    // log(){
+    //     return this.authService.log()
+    // }
 
     @Post("register")
     register(@Body() body:CreateUserDto){
